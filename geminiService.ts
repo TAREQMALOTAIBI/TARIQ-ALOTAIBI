@@ -1,14 +1,15 @@
+import { GoogleGenAI, Type } from "@google/genai";
 
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+// 1. استدعاء المفتاح بشكل آمن (سيعمل محلياً وفي Vercel)
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 
-const API_KEY = process.env.API_KEY || "";
+// تهيئة المكتبة مرة واحدة خارج الدوال لتحسين الأداء
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export const getGeminiResponse = async (
   prompt: string,
   image?: string
 ) => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
-  
   const config = {
     systemInstruction: `أنت "خبير السيارات الذكي"، متخصص عالمي في ميكانيكا السيارات، التصميم، سوق الأسعار، والتقنيات الحديثة. 
     تحدث باللغة العربية بأسلوب مهني وودي. إذا سألك المستخدم عن مقارنة، قدم له بيانات دقيقة. 
@@ -31,7 +32,7 @@ export const getGeminiResponse = async (
   }
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-1.5-flash", // تأكد من استخدام اسم الموديل المدعوم رسمياً
     contents,
     config
   });
@@ -46,10 +47,8 @@ export const getGeminiResponse = async (
 };
 
 export const getComparisonTable = async (car1: string, car2: string) => {
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
-  
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-1.5-flash",
     contents: `قارن بين ${car1} و ${car2} في جدول بيانات JSON.`,
     config: {
       responseMimeType: "application/json",
